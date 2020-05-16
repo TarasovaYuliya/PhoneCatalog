@@ -1,41 +1,39 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Телефоны</title>
-</head>
-<body>
-<h1>Телефонный справочник</h1>
-{% if message %}
-    <p><strong>{{ message }}</strong></p>
-{% endif %}
-{% if latest_phones %}
-    <table border="1" width="100%">
-        <tr>
-            <th>Имя</th>
-            <th>Дата создания</th>
-            <th>Адрес</th>
-            <th>Телефон</th>
-        </tr>
-        {% for Phone in latest_phones %}
+{% extends 'base.html' %}
+{% block main %}
+    <h4 class="card-title">Телефонный справочник</h4>
+
+    {% if message %}
+        <p class="alert alert-success">
+            <strong>{{ message }}</strong>
+        </p>
+    {% endif %}
+
+    {% if latest_phones %}
+        <table border="1" width="100%">
             <tr>
-                <td>
-                    {{ PhoneCatalog.Name }}
-                </td>
-                <td>
-                    {{ PhoneCatalog.RegDate }}
-                </td>
-                <td>
-                    {{ PhoneCatalog.Address }}
-                </td>
-                <td>
-                    {{ PhoneCatalog.PhoneNumber }}
-                </td>
+                <th>Имя</th>
+                <th>Дата создания</th>
+                <th>Адрес</th>
+                <th>Телефон</th>
             </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    <p>Справочник пустой.</p>
-{% endif %}
-</body>
-</html>
+            {% for Phone in latest_phones %}
+                <tr>
+                    <td>
+                        {{ PhoneCatalog.Name }}
+                    </td>
+                    <td>
+                        {{ PhoneCatalog.RegDate }}
+                    </td>
+                    <td>
+                        {{ PhoneCatalog.Address }}
+                    </td>
+                    <td>
+                        {{ PhoneCatalog.PhoneNumber }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Справочник пустой.</p>
+    {% endif %}
+{% endblock %}
