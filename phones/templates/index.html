@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block main %}
-    <h4 class="card-title">Телефонный справочник</h4>
+    <h4 class="card-title">Список абонентов</h4>
 
     {% if message %}
         <p class="alert alert-success">
@@ -8,31 +8,12 @@
         </p>
     {% endif %}
 
-    {% if latest_phones %}
-        <table border="1" width="100%">
-            <tr>
-                <th>Имя</th>
-                <th>Дата создания</th>
-                <th>Адрес</th>
-                <th>Телефон</th>
-            </tr>
-            {% for Phone in latest_phones %}
-                <tr>
-                    <td>
-                        {{ PhoneCatalog.Name }}
-                    </td>
-                    <td>
-                        {{ PhoneCatalog.RegDate }}
-                    </td>
-                    <td>
-                        {{ PhoneCatalog.Address }}
-                    </td>
-                    <td>
-                        {{ PhoneCatalog.PhoneNumber }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
+    {% if latest_subscribers %}
+        {% for Subscriber in latest_subscribers %}
+            <li>
+                <a href="/phones/{{ Subscriber.id }}/">{{ Subscriber.Name }}</a>, {{ Subscriber.Address }}
+            </li>
+        {% endfor %}
     {% else %}
         <p>Справочник пустой.</p>
     {% endif %}

@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
     <title>Телефонный справочник</title>
 </head>
 <body>
@@ -15,16 +13,14 @@
             <h1 class="mt-2">Телефонный справочник</h1>
             {% if user.is_authenticated %}
                 <p class="text-right">
-                    Hello, {{ user.username }}!
-                    <a href="/phones/logout">Log out</a> |
-                    <a href="/phones/password-change">
-                        Change password
-                    </a>
+                    Привет, {{ user.username }}!
+                    <a href="/phones/logout">Выйти</a> |
+                    <a href="/phones/password-change"> Сменить пароль </a>
                 </p>
             {% else %}
                 <p class="text-right">
-                    <a href="/phones/login">Log in</a> |
-                    <a href="/phones/register">Register</a>
+                    <a href="/phones/login">Войти</a> |
+                    <a href="/phones/register">Зарегистрироваться</a>
                 </p>
             {% endif %}
             <hr class="mt-0 mb-4">
