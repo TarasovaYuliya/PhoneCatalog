@@ -185,3 +185,49 @@ def get_mark(request, subscriber_id):
     res = Mark.objects.filter(subscriber_id=subscriber_id).aggregate(Avg('mark'))
 
     return JsonResponse(json.dumps(res), safe=False)
+
+
+# отображениу администраторской панели добавления телефонов
+def admin(request):
+    message = None
+    if "message" in request.GET:
+        message = request.GET["message"]
+    # создание HTML-страницы по шаблону admin.html
+    # с заданными параметрами latest_subscribers и message
+    return render(
+        request,
+        "admin.html",
+        {
+            "latest_subscribers": Subscriber.objects.order_by('Name')[:5],
+            "message": message,
+        }
+    )
+
+
+def post_phone(request):
+    # защита от добавления абонентов неадминистраторами
+    author = request.user
+    if not (author.is_authenticated and author.is_staff):
+        return HttpResponseRedirect(app_url+"admin")
+    # добавление загадки
+    subscriber = Subscriber()
+    subscriber.Name = request.POST['fio']
+    subscriber.Address = request.POST['address']
+    subscriber.RegDate = datetime.now()
+    subscriber.save()
+    # добавление телефонов
+    i = 1    # нумерация вариантов на форме начинается с 1
+    # количество вариантов неизвестно, поэтому ожидаем возникновение исключения, когда варианты кончатся
+    try:
+        while request.POST['phone'+str(i)]:
+            phone = Phone()
+            phone.IdSubscriber = subscriber
+            phone.PhoneNumber = request.POST['phone'+str(i)]
+            phone.save()
+            i += 1
+    # это ожидаемое исключение, при котором ничего делать не надо
+    except:
+        pass
+
+    return HttpResponseRedirect(app_url+str(subscriber.id))
+

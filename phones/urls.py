@@ -17,5 +17,7 @@ urlpatterns = [
     url(r'^([0-9]+)/post_mark/$', views.post_mark, name='post_mark'),
     # средняя оценка
     url(r'^([0-9]+)/get_mark/$', views.get_mark, name='get_mark'),
-
+    # добавление нового абонента
+    url(r'^admin/$', views.admin, name='admin'),
+    url(r'^post_phone/$', views.post_phone, name='post_phone'),
 ]

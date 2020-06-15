@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block main %}
+    {% if user.is_staff %}
+        {% if message %}
+            <p class="alert alert-success"><strong>{{ message }}</strong></p>
+        {% endif %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <form action="../post_phone/" method="post">
+                    {% csrf_token %}
+                    <h5>Добавить нового абонента:</h5>
+                    <div class="mb-3">
+                        <input class="form-control" placeholder="Введите ФИО абонента" name="fio" required/>
+                    </div>
+                    <div class="mb-3">
+                        <input class="form-control" placeholder="Введите адрес абонента" name="address" required/>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body" id="phones_new">
+                            <div class="mb-3">
+                                <input class="form-control" placeholder="Введите номер телефона" name="phone1"
+                                       required/>
+                            </div>
+                            <script>
+                                var option_counter = 1;
+                            </script>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-success" onclick="addPhone('phones_new', 0)" type="button">
+                            + Добавить телефон
+                        </button>
+                        <button class="btn btn-success"> Сохранить</button>
+                    </div>
+                    <input type="hidden" name="phone_id" value="0"/>
+                </form>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">Список абонентов</h4>
+                {% if latest_subscribers %}
+                    {% for Subscriber in latest_subscribers %}
+                        <li>
+                            <a href="/phones/{{ Subscriber.id }}/">{{ Subscriber.Name }}</a>, {{ Subscriber.Address }}
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <p>Справочник пустой.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <script>
+            //добавление блока для нового ответа
+            function addPhone(target, pos_in_array) {
+                var option = document.createElement("div");
+                option_counter += 1;
+                option.className = "input-group mb-3";
+                option.innerHTML =
+                    '<input class="form-control"' +
+                    '       placeholder="Телефон ' +
+                    option_counter + '"' +
+                    '       name="phone' + option_counter + '"/>' +
+                    '<div class="input-group-append">' +
+                    '     <button class="btn btn-danger"' +
+                    '             type="button"' +
+                    '             onclick="removeParent(' +
+                    '               this.parentNode)">' +
+                    '          Delete' +
+                    '     </button>' +
+                    '</div>';
+                document.getElementById(target).appendChild(option);
+            }
+
+            //удаление блока ответа с поправкой номеров других ответов
+            function removeParent(child) {
+                var optionList = child.parentNode.parentNode;
+                var currentPhone = child.parentNode;
+                optionList.removeChild(currentPhone);
+                for (var i = 3; i < optionList.children.length; i += 1) {
+                    var opt = optionList.children[i].children[0];
+                    opt.name = "phone" + (i);
+                    opt.placeholder = "Телефон " + (i);
+                }
+                option_counter -= 1;
+            }
+        </script>
+    {% else %}
+        <h4>Access denied.</h4>
+    {% endif %}
+{% endblock %}
