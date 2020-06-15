@@ -20,4 +20,6 @@ urlpatterns = [
     # добавление нового абонента
     url(r'^admin/$', views.admin, name='admin'),
     url(r'^post_phone/$', views.post_phone, name='post_phone'),
+    url(r'^subscribe/$', views.SubscribeView.as_view()),
+    url(r'^unsubscribe/$', views.unsubscribe, name='unsubscribe'),
 ]

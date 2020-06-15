@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import Subscriber, Phone
+from .models import Subscriber, Phone, User
 # Базовый класс для обработки страниц с формами.
 from django.views.generic.edit import FormView
 # Спасибо django за готовую форму регистрации.
@@ -24,6 +24,9 @@ import json
 from .models import Mark
 # вычисление среднего, например, средней оценки
 from django.db.models import Avg
+from django import forms
+from django.utils.translation import gettext, gettext_lazy as _
+from django.core.mail import send_mail
 
 
 # главная страница
@@ -208,7 +211,7 @@ def post_phone(request):
     # защита от добавления абонентов неадминистраторами
     author = request.user
     if not (author.is_authenticated and author.is_staff):
-        return HttpResponseRedirect(app_url+"admin")
+        return HttpResponseRedirect(app_url + "admin")
     # добавление загадки
     subscriber = Subscriber()
     subscriber.Name = request.POST['fio']
@@ -216,18 +219,82 @@ def post_phone(request):
     subscriber.RegDate = datetime.now()
     subscriber.save()
     # добавление телефонов
-    i = 1    # нумерация вариантов на форме начинается с 1
+    i = 1  # нумерация вариантов на форме начинается с 1
     # количество вариантов неизвестно, поэтому ожидаем возникновение исключения, когда варианты кончатся
     try:
-        while request.POST['phone'+str(i)]:
+        while request.POST['phone' + str(i)]:
             phone = Phone()
             phone.IdSubscriber = subscriber
-            phone.PhoneNumber = request.POST['phone'+str(i)]
+            phone.PhoneNumber = request.POST['phone' + str(i)]
             phone.save()
             i += 1
     # это ожидаемое исключение, при котором ничего делать не надо
     except:
         pass
 
-    return HttpResponseRedirect(app_url+str(subscriber.id))
+    # цикл по всем пользователям
+    for i in User.objects.all():
+        # проверка, что текущий пользователь подписан - указал e-mail
+        if i.email != '':
+            send_mail(
+                # тема письма
+                'Новый абонент',
+                # текст письма
+                'Новый абонент был добавлен на сайте:\n' +
+                'http://localhost:8000/phones/' + str(subscriber.id) + '.',
+                # отправитель
+                'tarasovayuliya1.19@gmail.com',
+                # список получателей из одного получателя
+                [i.email],
+                # отключаем замалчивание ошибок,
+                # чтобы из видеть и исправлять
+                False
+            )
 
+    return HttpResponseRedirect(app_url + str(subscriber.id))
+
+
+# класс, описывающий логику формы: список заполняемых полей и их сохранение
+class SubscribeForm(forms.Form):
+    # поле для ввода e-mail
+    email = forms.EmailField(label=_("E-mail"), required=True, )
+
+    # конструктор для запоминания пользователя, которому задается e-mail
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    # сохранение e-mail
+    def save(self, commit=True):
+        self.user.email = self.cleaned_data["email"]
+        if commit:
+            self.user.save()
+        return self.user
+
+
+# класс, описывающий взаимодействие логики со страницами веб-приложения
+class SubscribeView(FormView):
+    # используем класс с логикой
+    form_class = SubscribeForm
+    # используем собственный шаблон
+    template_name = 'subscribe.html'
+    # после подписки возвращаем на главную станицу
+    success_url = app_url
+
+    # передача пользователя для конструктора класса с логикой
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    # вызов логики сохранения введенных данных
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(self.success_url)
+
+
+# функция для удаления подписки (форма не нужна, поэтому без классов, просто функция)
+def unsubscribe(request):
+    request.user.email = ''
+    request.user.save()
+    return HttpResponseRedirect(app_url)

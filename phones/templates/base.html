@@ -19,7 +19,11 @@
                     {% if user.is_staff %}
                         | <a href="/phones/admin">Добавить абонента</a>
                     {% endif %}
-
+                    {% if user.email == '' %}
+                        | <a href="/phones/subscribe">Подписаться</a>
+                    {% else %}
+                        | <a href="/phones/unsubscribe">Отписаться</a>
+                    {% endif %}
                 </p>
             {% else %}
                 <p class="text-right">
